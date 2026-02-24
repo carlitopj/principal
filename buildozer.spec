@@ -19,9 +19,10 @@ orientation = portrait
 fullscreen = 0
 
 [buildozer]
-# Configurações gerais do Buildozer
+# Configurações gerais do Buildozer (Unificadas)
 log_level = 2
 warn_on_root = 1
+build_dir = ./.buildozer
 
 [android]
 # API alvo e mínima
@@ -33,19 +34,14 @@ android.build_tools = 33.0.2
 # Versão do NDK
 android.ndk = 25b
 
-# Permissões (adicione conforme necessário)
+# Permissões
 android.accept_sdk_license = True
-# Pular a atualização automática do SDK (evita que ele busque a v37)
 android.skip_update = False
 
 # Arquitetura alvo
 android.archs = armeabi-v7a, arm64-v8a
 
-# Garante que o Gradle use o Java 17 (padrão do GitHub Actions atual)
+# Garante que o Gradle use o Java 17
 android.gradle_dependencies =
-
-[buildozer]
-# Pasta de build para cache
-build_dir = ./.buildozer
 
 # android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE
