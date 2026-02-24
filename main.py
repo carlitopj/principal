@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.utils import platform
+from kivy.lang import Builder
 import os
 import sys
 from pathlib import Path
@@ -42,7 +43,3 @@ class TarefasLayout(BoxLayout):
             print(f"Erro ao adicionar tarefa: {e}")
             import traceback
             traceback.print_exc()
-
-    def remover_tarefa(self):
-        try:
-            # Evita erro se a lista estiver vazia
