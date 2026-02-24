@@ -1,129 +1,88 @@
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.utils import platform
-import os
-import sys
-from pathlib import Path
+name: Build APK
 
-try:
-    import Tarefas
-except ImportError:
-    print("Erro: Módulo Tarefas não encontrado!")
-    sys.exit(1)
+on:
+  workflow_dispatch:
 
-class TarefasLayout(BoxLayout):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Tenta carregar as tarefas ao iniciar
-        try:
-            Tarefas.carregar_tarefas()
-            self.atualizar_lista()
-        except Exception as e:
-            print(f"Erro ao carregar tarefas: {e}")
-            import traceback
-            traceback.print_exc()
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
 
-    def adicionar_tarefa(self):
-        try:
-            nome = self.ids.nome.text
-            info = self.ids.info.text
-            data = self.ids.data.text
-            
-            # Trim de espaços para evitar entradas vazias
-            if nome.strip():
-                if Tarefas.adicionar_tarefa(nome, info, data):
-                    self.atualizar_lista()
-                    self.ids.nome.text = ""
-                    self.ids.info.text = ""
-                    self.ids.data.text = ""
-                    # Salva após adicionar
-                    Tarefas.salvar_tarefas()
-        except Exception as e:
-            print(f"Erro ao adicionar tarefa: {e}")
-            import traceback
-            traceback.print_exc()
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-    def remover_tarefa(self):
-        try:
-            # Evita erro se a lista estiver vazia
-            if Tarefas.tarefas:
-                if Tarefas.remover_tarefa(len(Tarefas.tarefas) - 1):
-                    self.atualizar_lista()
-                    # Salva após remover
-                    Tarefas.salvar_tarefas()
-        except Exception as e:
-            print(f"Erro ao remover tarefa: {e}")
-            import traceback
-            traceback.print_exc()
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    def atualizar_lista(self):
-        try:
-            # Garante que o RecycleView (ids.lista) receba os dados corretamente
-            self.ids.lista.data = [
-                {"text": f"{t} - {Tarefas.obter_status(t)}"} 
-                for t in Tarefas.tarefas
-            ]
-        except Exception as e:
-            print(f"Erro ao atualizar lista: {e}")
-            import traceback
-            traceback.print_exc()
+      - name: Aumentar espaço de swap (CRÍTICO para evitar Broken pipe)
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 5G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
 
-class TarefasApp(App):
-    def build(self):
-        # Definindo o caminho de salvamento para Android vs Desktop
-        try:
-            if platform == 'android':
-                # No Android, usar o diretório de dados da aplicação
-                caminho = self.user_data_dir
-                if not caminho:
-                    print("Aviso: user_data_dir retornou None, usando fallback")
-                    caminho = str(Path.home() / ".gestor_tarefas")
-            else:
-                # Desktop: usar diretório atual ou home
-                caminho = os.path.join(os.getcwd(), ".gestor_tarefas")
-            
-            # Criar diretório se não existir
-            Path(caminho).mkdir(parents=True, exist_ok=True)
-            
-            print(f"Os dados serão salvos em: {caminho}")
-            print(f"Platform detectada: {platform}")
-            
-            # Configurar caminho no módulo Tarefas
-            if hasattr(Tarefas, 'configurar_caminho'):
-                Tarefas.configurar_caminho(caminho)
-            
-            return TarefasLayout()
-        
-        except Exception as e:
-            print(f"Erro crítico ao iniciar app: {e}")
-            import traceback
-            traceback.print_exc()
-            # Retornar layout vazio em caso de erro
-            return BoxLayout()
+      - name: Instalar dependências do sistema
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libsqlite3-dev sqlite3 bzip2 libbz2-dev zlib1g-dev \
+          libgdbm-dev libncurses5-dev libssl-dev libffi-dev readline-common libreadline-dev \
+          libdb5.3-dev libgdbm-compat-dev libexpat1-dev liblzma-dev tar \
+          libtool autoconf automake pkg-config
+          sudo apt install -y openjdk-11-jdk curl unzip zip
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33
 
-    def on_pause(self):
-        """Salva os dados quando o usuário minimiza o app"""
-        try:
-            if hasattr(Tarefas, 'salvar_tarefas'):
-                Tarefas.salvar_tarefas()
-                print("Tarefas salvas (on_pause)")
-        except Exception as e:
-            print(f"Erro ao salvar tarefas em on_pause: {e}")
-        return True
+      - name: Limpar cache antigo (evita builds corrompidas)
+        run: |
+          rm -rf ~/.buildozer
+          rm -rf .buildozer
+          rm -rf ~/.gradle
 
-    def on_stop(self):
-        """Salva os dados quando o app é fechado"""
-        try:
-            if hasattr(Tarefas, 'salvar_tarefas'):
-                Tarefas.salvar_tarefas()
-                print("Tarefas salvas (on_stop)")
-        except Exception as e:
-            print(f"Erro ao salvar tarefas em on_stop: {e}")
+      - name: Cache Buildozer (apenas para downloads)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-if __name__ == "__main__":
-    try:
-        TarefasApp().run()
-    except Exception as e:
-        print(f"Erro crítico na execução: {e}")
-        import traceback
-        traceback.print_exc()
+      - name: Compilar APK
+        run: |
+          buildozer -v android debug
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+          ANDROID_SDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+          ANDROID_NDK_ROOT: ${{ github.workspace }}/.buildozer/android/platform/android-ndk-25b
+
+      - name: Verificar se APK foi gerado
+        run: |
+          if [ -f "bin/gestor_tarefas-0.1-debug.apk" ]; then
+            echo "✅ APK gerado com sucesso!"
+            ls -lh bin/
+          else
+            echo "❌ APK não foi gerado"
+            ls -lh bin/ || echo "Diretório bin vazio"
+            exit 1
+          fi
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-apk
+          path: bin/*.apk
+          retention-days: 30
+
+      - name: Mostrar resumo
+        if: always()
+        run: |
+          echo "=== Resumo da Build ==="
+          echo "Status: ${{ job.status }}"
+          echo "Timestamp: $(date)"
