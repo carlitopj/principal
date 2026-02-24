@@ -13,15 +13,22 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
+      - name: Cache Buildozer
+        uses: actions/cache@v3
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
       - name: Instalar dependências
         run: |
           sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk unzip git
+          sudo apt install -y python3-pip openjdk-17-jdk unzip git wget
           pip install buildozer cython
 
       - name: Instalar Android SDK e aceitar licenças
         run: |
-          sudo apt install -y wget
           mkdir -p $HOME/android-sdk
           cd $HOME/android-sdk
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
