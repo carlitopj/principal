@@ -1,9 +1,7 @@
 name: Build APK
 
 on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+  workflow_dispatch:   # só roda quando você clicar em "Run workflow" na aba Actions
 
 jobs:
   build:
@@ -33,7 +31,7 @@ jobs:
           cd $HOME/android-sdk/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip
-          mv cmdline-tools latest   # cria a pasta "latest" com os binários
+          mv cmdline-tools latest
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
           yes | sdkmanager --licenses
