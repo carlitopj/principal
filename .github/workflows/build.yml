@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:   # permite rodar manualmente
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,6 +19,18 @@ jobs:
           sudo apt install -y python3-pip openjdk-17-jdk unzip git
           pip install buildozer cython
 
+      - name: Instalar Android SDK e aceitar licenças
+        run: |
+          sudo apt install -y wget
+          mkdir -p $HOME/android-sdk
+          cd $HOME/android-sdk
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d cmdline-tools
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/bin:$PATH
+          yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
       - name: Inicializar Buildozer
         run: |
           if [ ! -f buildozer.spec ]; then buildozer init; fi
@@ -28,7 +40,7 @@ jobs:
           buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4   # atualizado para v4
+        uses: actions/upload-artifact@v4
         with:
           name: app-apk
           path: bin/*.apk
