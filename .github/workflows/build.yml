@@ -3,10 +3,12 @@ name: Build APK
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:   # permite rodar manualmente
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
@@ -14,8 +16,12 @@ jobs:
       - name: Instalar dependências
         run: |
           sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk unzip
-          pip install buildozer
+          sudo apt install -y python3-pip openjdk-17-jdk unzip git
+          pip install buildozer cython
+
+      - name: Inicializar Buildozer
+        run: |
+          if [ ! -f buildozer.spec ]; then buildozer init; fi
 
       - name: Compilar APK
         run: |
