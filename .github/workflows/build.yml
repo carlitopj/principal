@@ -1,7 +1,7 @@
 name: Build APK
 
 on:
-  workflow_dispatch:   # só roda quando você clicar em "Run workflow" na aba Actions
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,41 +9,26 @@ jobs:
 
     steps:
       - name: Checkout código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Atualizado para v4
 
-      - name: Cache Buildozer
-        uses: actions/cache@v3
+      - name: Configurar Python
+        uses: actions/setup-python@v4
         with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+          python-version: '3.10'
 
-      - name: Instalar dependências
+      - name: Instalar dependências do sistema
         run: |
           sudo apt update
-          sudo apt install -y python3-pip openjdk-17-jdk unzip git wget
-          pip install buildozer cython
-
-      - name: Instalar Android SDK e aceitar licenças
-        run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip
-          mv cmdline-tools latest
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-
-      - name: Inicializar Buildozer
-        run: |
-          if [ ! -f buildozer.spec ]; then buildozer init; fi
+          sudo apt install -y build-essential libsqlite3-dev sqlite3 bzip2 libbz2-dev zlib1g-dev libgdbm-dev libncurses5-dev libssl-dev libffi-dev readline-common libreadline-dev libdb5.3-dev libgdbm-compat-dev libexpat1-dev liblzma-dev libffi-dev tar
+          sudo apt install -y openjdk-17-jdk curl unzip zip
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33  # Versão estável de Cython para Kivy
 
       - name: Compilar APK
         run: |
-          buildozer android debug
+          # Aceita licenças e inicia o build
+          # O buildozer lerá o build_tools = 33.0.2 do seu arquivo .spec
+          yes | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
