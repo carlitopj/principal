@@ -6,8 +6,7 @@ source.dir = .
 source.include_exts = py,kv,txt,png,jpg
 version = 0.1
 
-# Requirements atualizados
-requirements = python3,kivy==2.2.1,pillow,hostpython3
+requirements = python3,kivy==2.2.1,pillow
 
 orientation = portrait
 fullscreen = 0
@@ -18,23 +17,16 @@ warn_on_root = 1
 build_dir = ./.buildozer
 
 [android]
-# Configurações de API para máxima compatibilidade no GitHub Actions
-android.api = 31
+android.api = 33
 android.minapi = 21
-android.sdk = 31
-android.build_tools = 31.0.0
-android.ndk = 25b
+android.sdk = 33
+android.build_tools = 33.0.2
+android.ndk = 25c
 
-# Permissões e Licenças
 android.accept_sdk_license = True
 android.skip_update = False
+android.archs = arm64-v8a
 
-# Arquiteturas para rodar na maioria dos celulares modernos
-android.archs = arm64-v8a, armeabi-v7a
-
-# Limpeza de dependências para evitar conflitos de Gradle
 android.gradle_dependencies = 
 android.enable_androidx = True
-
-# Isso ajuda a evitar o erro de memória/pipe no ambiente virtual
 android.allow_backup = True
