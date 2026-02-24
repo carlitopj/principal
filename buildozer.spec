@@ -15,16 +15,9 @@ warn_on_root = 1
 build_dir = .buildozer
 
 [android]
-# API alvo e mínima
 android.api = 33
 android.minapi = 21
-android.build_tools = 33.0.2
-
-# Versão do NDK
 android.ndk = 25b
-
-# Arquitetura alvo
 android.arch = armeabi-v7a
-
-# Permissões (adicione conforme necessário)
+android.build_tools = 33.0.2
 # android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE
