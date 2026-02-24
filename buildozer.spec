@@ -32,3 +32,5 @@ android.gradle_dependencies =
 android.enable_androidx = True
 android.allow_backup = True
 android.skip_lint = True
+
+android.logcat_filters = *:S python:D
