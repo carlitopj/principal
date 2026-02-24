@@ -1,47 +1,40 @@
 [app]
-# Informações do aplicativo
 title = Gestor de Tarefas
 package.name = gestor_tarefas
 package.domain = org.carlitopj
-
-# Diretório e arquivos incluídos
 source.dir = .
 source.include_exts = py,kv,txt,png,jpg
-
-# Versão do app
 version = 0.1
 
-# Dependências Python necessárias
-requirements = python3,kivy==2.2.1,pillow
+# Requirements atualizados
+requirements = python3,kivy==2.2.1,pillow,hostpython3
 
-# Configurações visuais
 orientation = portrait
 fullscreen = 0
 
 [buildozer]
-# Configurações gerais do Buildozer (Unificadas)
 log_level = 2
 warn_on_root = 1
 build_dir = ./.buildozer
 
 [android]
-# API alvo e mínima
-android.api = 33
+# Configurações de API para máxima compatibilidade no GitHub Actions
+android.api = 31
 android.minapi = 21
-android.sdk = 33
-android.build_tools = 33.0.2
-
-# Versão do NDK
+android.sdk = 31
+android.build_tools = 31.0.0
 android.ndk = 25b
 
-# Permissões
+# Permissões e Licenças
 android.accept_sdk_license = True
 android.skip_update = False
 
-# Arquitetura alvo
-android.archs = armeabi-v7a, arm64-v8a
+# Arquiteturas para rodar na maioria dos celulares modernos
+android.archs = arm64-v8a, armeabi-v7a
 
-# Garante que o Gradle use o Java 17
-android.gradle_dependencies =
+# Limpeza de dependências para evitar conflitos de Gradle
+android.gradle_dependencies = 
+android.enable_androidx = True
 
-# android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE
+# Isso ajuda a evitar o erro de memória/pipe no ambiente virtual
+android.allow_backup = True
