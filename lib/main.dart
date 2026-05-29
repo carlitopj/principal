@@ -3,16 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 void main() {
-  runApp(const GestorTarefasApp());
+  runApp(const AgendaFacilApp());
 }
 
-class GestorTarefasApp extends StatelessWidget {
-  const GestorTarefasApp({super.key});
+class AgendaFacilApp extends StatelessWidget {
+  const AgendaFacilApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gestor de Tarefas Plus',
+      title: 'Agenda Fácil',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF10b981)),
@@ -252,7 +252,7 @@ class _TarefasPageState extends State<TarefasPage> {
           children: [
             Icon(Icons.checklist_rounded, color: Color(0xFF10b981)),
             SizedBox(width: 10),
-            Text('Gestor de Tarefas Plus',
+            Text('Agenda Fácil',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
           ],
         ),
@@ -541,4 +541,3 @@ class _TarefasPageState extends State<TarefasPage> {
     );
   }
 }
-
