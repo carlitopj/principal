@@ -407,18 +407,33 @@ class _TarefasPageState extends State<TarefasPage> {
   Widget _campoData() {
     return TextField(
       controller: _dataCtrl,
-      readOnly: true,
-      onTap: _selecionarData,
+      keyboardType: TextInputType.number,
+      maxLength: 10,
       decoration: InputDecoration(
-        hintText: 'Data (DD/MM/AAAA)',
+        hintText: 'DD/MM/AAAA',
         prefixIcon: const Icon(Icons.calendar_today, size: 18, color: Colors.grey),
-        suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+        counterText: '',
         filled: true,
         fillColor: const Color(0xFFf9fafb),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFe5e7eb))),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFe5e7eb))),
         contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       ),
+      onChanged: (val) {
+        // Formata automaticamente DD/MM/AAAA enquanto digita
+        String digits = val.replaceAll('/', '');
+        String formatted = '';
+        for (int i = 0; i < digits.length && i < 8; i++) {
+          if (i == 2 || i == 4) formatted += '/';
+          formatted += digits[i];
+        }
+        if (formatted != val) {
+          _dataCtrl.value = TextEditingValue(
+            text: formatted,
+            selection: TextSelection.collapsed(offset: formatted.length),
+          );
+        }
+      },
     );
   }
 
@@ -526,3 +541,4 @@ class _TarefasPageState extends State<TarefasPage> {
     );
   }
 }
+
