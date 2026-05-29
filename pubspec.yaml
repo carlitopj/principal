@@ -1,0 +1,21 @@
+name: gestor_tarefas
+description: Gestor de Tarefas Plus
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+flutter_localizations:
+  sdk: flutter
+
